@@ -38,41 +38,6 @@ The platform utilizes PostgreSQL for database management and Redis for caching, 
   - `requirements.txt`: Lists frontend dependencies.
   - `frontend/`: Contains configuration files, routing, views, and templates for the frontend interface.
 
-
-## Lifehacks
-
-**Use ChatGPT Everywhere**
-
-**But don't ask it to write the code or solutions for you.**
-
-Initially, use it to understand the diagram, all the interconnections on it, and why everything is arranged this way.
-
-Next, use it when taking courses to find the information you need for the project's implementation. Use it here to deepen your understanding, create more examples and analogies. Break concepts into the simplest levels of abstraction and show maximum creativity when working with it.
-
-Refer back to the course we took initially (about ChatGPT), recall the methods and strategies of prompts, and use them. Your main task is not just to implement the project but to learn how to break down new information into the simplest pieces with ChatGPT and build understanding as quickly as possible.
-
-## Deployment Flow
-
-### Local Testing
-
-- Follow the steps in **Local Testing** to set up and validate the application locally using Docker Compose.
-
-### Step 1: Deploying the Basic Architecture
-
-- Deploy the backend services on ECS instances in a private subnet as described in **Step 1: Deploying the Basic Architecture**.
-
-### Step 2: Introducing Load Balancing
-
-- Set up an Application Load Balancer (ALB) as outlined in **Step 2: Introducing Load Balancing** to distribute traffic across multiple backend instances.
-
-### Step 3: Incorporating Databases and Caching
-
-- Implement secure database and caching services using RDS and ElastiCache in a private subnet as described in **Step 3: Incorporating Databases and Caching**.
-
-### CI/CD Process
-
-- Implement separate CI/CD pipelines for backend and frontend deployment to automate the process effectively.
-
 ## Local Testing
 
 ### Step 1: Cloning the Repository
@@ -129,59 +94,62 @@ docker-compose down
 
 ## AWS Deployment
 
-### Step 1: Deploying the Frontend
+### Step 0: Provisioning Network and Storage
+
+Before deploying any services, provision the foundational networking and storage infrastructure:
+
+- Use **Terraform** to create a **VPC**, with public and private subnets, route tables, and gateways.
+- Create **two public** and **two private subnets** across different availability zones.
+- Set up **one NAT Gateway** to allow private subnets secure outbound internet access.
+
+
+### Step 1: Creating Amazon ECR and Pushing Images
+
+- Manually create **Amazon ECR repositories** for each service (e.g., frontend, backend-rds, backend-redis). This avoids accidental deletion when using `terraform destroy`.
+- Write CI/CD pipelines (e.g., GitHub Actions, GitLab CI) to build Docker images and push them to ECR. 
+Pipeline steps:
+  - Log in to ECR using AWS CLI
+  - Build Docker image
+  - Tag image with ECR URI
+  - Push image to ECR
+
+### Step 2: Deploying ALB and ECS
 
 ![Architecture Diagram Step 1](docs/assets/diagram-step1.png)
 
-In the first step, deploy the frontend application with a simple setup:
-
-- Launch an ECS cluster in a **private subnet** for hosting the frontend service.
-- Use **Amazon ECR** for managing container images.
-- Run the ECS task with the proper image.
-
-### Step 2: Introducing Load Balancing
-
-![Architecture Diagram Step 2](docs/assets/diagram-step2.png)
-
-In the second step, enhance scalability and availability:
-
-- Add an **Application Load Balancer (ALB)** in the **public subnet** to distribute traffic to the frontend service.
-
-### Step 3: Incorporating Backend Services
-
-![Architecture Diagram Step 3](docs/assets/diagram-step3.png)
-
-In the final step, integrate data storage and backend functionality:
-
-- Deploy **RDS** and **ElastiCache (Redis)** in **private subnets** for secure database and caching operations.
-- Configure the backend services to work seamlessly with the frontend.
+- Use **Terraform** to create an **Application Load Balancer (ALB)** in the **public subnet**.
+- Launch an **ECS cluster** in the **private subnet** to run your services.
+- Define task definitions and ECS services for the frontend and backend.
+- Configure **security groups** for the ALB and ECS services to control inbound and outbound traffic.
+- Use **AWS Cloud Map** for service discovery, allowing the frontend to communicate with backend services using internal DNS names.
 
 
-## CI/CD Process
+### Step 3: Provisioning Databases
 
-Setting up a CI/CD pipeline is essential for automating the build, test, and deployment processes. You can choose to use either **GitHub Actions** or **GitLab CI/CD** based on your preference. Here are the general steps:
+![Architecture Diagram Step 3](docs/assets/diagram-step2.png)
 
-1. **Pipeline Configuration**:
-   - Define a pipeline in GitHub Actions or in GitLab CI/CD.
-   - Include stages for building Docker images, running tests, and deploying to AWS.
+- Use **Terraform** to provision **RDS (PostgreSQL)** and **ElastiCache (Redis)** in **private subnets**.
+- Set up **subnet groups**, **parameter groups**, and **security groups** for both services.
+- Configure backend services to connect using endpoint environment variables.
+- Ensure secure internal communication between ECS tasks and database services.
 
-2. **Docker Integration**:
-   - Configure the pipeline to build and push Docker images to Amazon ECR.
+### Final Step: Testing the Application
 
-3. **Environment Variables**:
-   - Store sensitive data, such as AWS credentials, database connection strings, and API keys, securely within the CI/CD platform.
+Once the infrastructure and services are deployed, test the application as follows:
 
-4. **Testing**:
-   - Add automated tests to validate the backend and frontend components.
+1. **Access the Frontend**:
+   - Open the DNS name of the Application Load Balancer in your browser.
+   - Ensure the frontend loads correctly.
 
-5. **Deployment**:
-   - Deploy the backend and frontend to AWS ECS instances.
-
+2. **Verify Frontend to Backend Communication**:
+   - Trigger actions from the frontend (press buttons to test connection).
+   - Confirm requests return valid responses.
 
 ## Final Thoughts
 
-Congratulations on successfully setting up and integrating your art gallery application with Amazon ECS! This achievement highlights your understanding of scalable and efficient containerized application deployment, as well as your ability to manage real-world systems on AWS. Keep experimenting, refining, and advancing your skills as you continue your DevOps journey.
-
+Congratulations on successfully setting up and integrating your art gallery application with Amazon ECS!
 <p align="center">
-  <img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExYTd0MXc2bXE3cnB4ZGxpeW1mZHN0OHI1anhqdTl1bzRscGd0a3BjbiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/QPcJjFPzZXS4X61jwF/giphy.gif" width="50%">
+  <img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExYTd0MXc2bXE3cnB4ZGxpeW1mZHN0OHI1anhqdTl1bzRscGd0a3BjbiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/QPcJjFPzZXS4X61jwF/giphy.gif" width="70%">
 </p>
+
+ This achievement highlights your understanding of scalable and efficient containerized application deployment, as well as your ability to manage real-world systems on AWS. Keep experimenting, refining, and advancing your skills as you continue your DevOps journey.
