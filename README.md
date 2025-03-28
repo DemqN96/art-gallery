@@ -128,7 +128,7 @@ Pipeline steps:
 
 ![Architecture Diagram Step 3](docs/assets/diagram-step2.png)
 
-- Use **Terraform** to provision **RDS** (PostgreSQL) and **ElastiCache (Redis)** in **private subnets**.
+- Use **Terraform** to provision **RDS (PostgreSQL)** and **ElastiCache (Redis)** in **private subnets**.
 - Set up **subnet groups**, **parameter groups**, and **security groups** for both services.
 - Configure backend services to connect using endpoint environment variables.
 - Ensure secure internal communication between ECS tasks and database services.
