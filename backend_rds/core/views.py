@@ -1,12 +1,12 @@
 from django.http import JsonResponse
-from django.db import connection
+from django.db import connections
 import logging
 
 logger = logging.getLogger(__name__)
 
 def test_connection(request):
     try:
-        with connection.cursor() as cursor:
+        with connections['postgre'].cursor() as cursor:
             cursor.execute("SELECT 1")
         return JsonResponse({'message': 'Connection to Backend RDS is successful!'})
     except Exception as e:
