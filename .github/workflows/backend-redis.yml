@@ -26,6 +26,6 @@ jobs:
 
     - name: Build and push Docker image to ECR
       run: |
-        IMAGE=${{ secret.AWS_ACCAUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/art.gallery.redis
+        IMAGE=${{ secrets.AWS_ACCAUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/art.gallery.redis
         docker build -t $IMAGE ./backend_redis
         docker push $IMAGE
