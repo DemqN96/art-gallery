@@ -29,4 +29,4 @@ jobs:
         IMAGE=${{ secrets.AWS_ACCAUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/art.gallery.backend
         docker build -t $IMAGE ./backend_rds
         docker push $IMAGE
- 
+   
