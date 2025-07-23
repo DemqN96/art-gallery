@@ -19,13 +19,13 @@ jobs:
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: eu-north-1
+        aws-region: ${{ vars.AWS_REGION }}
 
     - name: Login to Amazon ECR
       uses: aws-actions/amazon-ecr-login@v1
 
     - name: Build and push Docker image to ECR
       run: |
-        IMAGE=149591431224.dkr.ecr.eu-north-1.amazonaws.com/art.gallery.redis
+        IMAGE=${{ secret.AWS_ACCAUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/art.gallery.redis
         docker build -t $IMAGE ./backend_redis
         docker push $IMAGE
