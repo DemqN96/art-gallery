@@ -1,4 +1,4 @@
-name: Deploy backend
+name: Deploy frontend
 
 on:
   push:
@@ -26,6 +26,6 @@ jobs:
 
     - name: Build and push Docker image to ECR
       run: |
-        IMAGE=149591431224.dkr.ecr.eu-north-1.amazonaws.com/art.gallery.backend
+        IMAGE=${{ secret.AWS_ACCAUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com/art.gallery.backend
         docker build -t $IMAGE ./backend_rds
         docker push $IMAGE
