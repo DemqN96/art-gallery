@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  backend_rds:
+    image: 149591431224.dkr.ecr.eu-north-1.amazonaws.com/art.gallery.backend-rds
+    ports:
+      - "8000:8000"
+
+  backend_redis:
+    image: 149591431224.dkr.ecr.eu-north-1.amazonaws.com/art.gallery.backend-redis
+    ports:
+      - "8001:8001"
+
+  frontend:
+    image: 149591431224.dkr.ecr.eu-north-1.amazonaws.com/art.gallery.rds
+    ports:
+      - "80:80"
